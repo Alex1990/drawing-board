@@ -1,0 +1,3 @@
+.toolbar > .tool-btn:not(:first-child) {
+  margin-top: -1px;
+}

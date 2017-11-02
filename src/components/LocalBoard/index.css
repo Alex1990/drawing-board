@@ -1,0 +1,22 @@
+.coordinate-info {
+  float: right;
+  margin-top: -36px;
+  font-size: 14px;
+  text-align: right;
+  color: #777;
+}
+
+.board-main {
+  display: flex;
+}
+
+.board-main .toolbar {
+  margin-right: 4px;
+  width: 32px;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.board-main .drawing-canvas {
+  width: 100%;
+}
