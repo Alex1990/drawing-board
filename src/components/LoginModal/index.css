@@ -1,0 +1,35 @@
+.app-form-item {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.app-form-item-label {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 25%;
+  height: 30px;
+  line-height: 30px;
+  text-align: right;
+}
+
+.app-form-item-control-wrapper {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 65%;
+}
+
+.app-form-item-control {
+  width: 100%;
+}
+
+input.app-form-item-control {
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1;
+  border: 1px solid #ddd;
+  outline: 0;
+}
+
+input.app-form-item-control:focus {
+  border-color: #444;
+}

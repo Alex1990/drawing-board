@@ -15,7 +15,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app-icon-pencil:before { content: "\e651"; }
+.app-icon-brush:before { content: "\e651"; }
 
 .app-icon-clear:before { content: "\e700"; }
 

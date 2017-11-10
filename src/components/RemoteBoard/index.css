@@ -1,4 +1,28 @@
-.canvas-wrapper {
-  background-color: #fff;
-  border: 1px solid #ccc;
+.title {
+  display: flex;
+  margin-bottom: 32px;
+}
+
+.title h2 {
+  margin: 0;
+}
+
+.online {
+  margin-left: 16px;
+  color: #0a0;
+}
+
+.offline {
+  margin-left: 16px;
+  color: #777;
+}
+
+.receiver-input {
+  margin-left: 32px;
+  width: 180px;
+  height: 28px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1;
+  border: 1px solid #ddd;
 }

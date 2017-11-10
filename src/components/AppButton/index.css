@@ -1,0 +1,32 @@
+.app-btn {
+  position: relative;
+  margin: 0;
+  height: 28px;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+  background: transparent;
+  color: #444;
+  border-radius: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.app-btn-primary {
+  border: 1px solid #444;
+}
+
+.app-btn-secondary {
+  border: 1px solid #aaa;
+}
+
+.app-btn-primary:active {
+  background: #444;
+  color: #fff;
+}
+
+.app-btn-secondary:active {
+  background: #aaa;
+  color: #fff;
+}

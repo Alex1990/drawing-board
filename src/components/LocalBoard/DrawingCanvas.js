@@ -1,7 +1,38 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import tinycolor from 'tinycolor2';
 import './DrawingCanvas.css';
+
+function drawBrushLine(ctx, {
+  from,
+  to,
+  size,
+  color,
+}) {
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.lineWidth = size;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function drawEraserLine(ctx, {
+  from,
+  to,
+  size,
+}) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.lineWidth = size;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+  ctx.restore();
+  ctx.closePath();
+}
 
 class DrawingCanvas extends Component {
   static propTypes = {
@@ -61,7 +92,7 @@ class DrawingCanvas extends Component {
   }
 
   setCursor(activeTool, color = '#000') {
-    const { type, size } = activeTool;
+    const { size } = activeTool;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -128,8 +159,33 @@ class DrawingCanvas extends Component {
   }
 
   onPointerDown(e) {
+    const { activeTool } = this.props;
+
     this.canBegin = true;
     this.previousPoint = { x: e.offsetX, y: e.offsetY };
+
+    const ctx = this.canvas.getContext('2d');
+    const from = this.previousPoint;
+    const to = this.previousPoint;
+    const size = activeTool.size;
+
+    if (activeTool.type === 'brush') {
+      drawBrushLine(ctx, { from, to, size });
+      this.props.onPushCommand({
+        type: activeTool.type,
+        from,
+        to,
+        size,
+      });
+    } else if (activeTool.type === 'eraser') {
+      drawEraserLine(ctx, { from, to, size });
+      this.props.onPushCommand({
+        type: activeTool.type,
+        from,
+        to,
+        size,
+      });
+    }
   }
 
   onPointerMove(e) {
@@ -137,34 +193,17 @@ class DrawingCanvas extends Component {
 
     if (this.canBegin) {
       const ctx = this.canvas.getContext('2d');
-      let x1 = this.previousPoint.x;
-      let y1 = this.previousPoint.y;
-      let x2 = e.offsetX;
-      let y2 = e.offsetY;
+      const from = this.previousPoint;
+      const to = { x: e.offsetX, y: e.offsetY };
+      const size = activeTool.size;
 
-      if (activeTool.type === 'pencil') {
-        ctx.beginPath();
-        ctx.lineCap = 'round';
-        ctx.lineWidth = activeTool.size;
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        ctx.closePath();
+      if (activeTool.type === 'brush') {
+        drawBrushLine(ctx, { from, to, size });
       } else if (activeTool.type === 'eraser') {
-        ctx.save();
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.lineCap = 'round';
-        ctx.lineWidth = activeTool.size;
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        ctx.restore();
-        ctx.closePath();
+        drawEraserLine(ctx, { from, to, size });
       }
 
-      this.previousPoint.x = x2;
-      this.previousPoint.y = y2;
+      this.previousPoint = to;
     }
   }
 

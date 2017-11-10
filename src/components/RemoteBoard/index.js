@@ -1,18 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import AppButton from '../AppButton';
 import './index.css';
 
 class RemoteBoard extends Component {
+  static propTypes = {
+    receiver: PropTypes.string,
+  };
+
+  static defaultProps = {
+    receiver: '',
+  };
+
   constructor(props) {
     super(props);
     this.state = {
       width: undefined,
       height: undefined,
+      username: '',
     };
-    this.onPointerDown = this.onPointerDown.bind(this);
-    this.onPointerMove = this.onPointerMove.bind(this);
-    this.onPointerUp = this.onPointerUp.bind(this);
-    this.onPointerOut = this.onPointerOut.bind(this);
+    this.onUsernameChange = this.onUsernameChange.bind(this);
+    this.onConnect = this.onConnect.bind(this);
+    this.onDisconnect = this.onDisconnect.bind(this);
   }
 
   componentDidMount() {
@@ -24,59 +33,75 @@ class RemoteBoard extends Component {
       width: Math.floor(width),
       height: Math.floor(height),
     });
-    this.ctx = this.canvas.getContext('2d');
-    this.canvas.addEventListener('pointerdown', this.onPointerDown);
-    this.canvas.addEventListener('pointermove', this.onPointerMove);
-    this.canvas.addEventListener('pointerup', this.onPointerUp);
-    this.canvas.addEventListener('pointerout', this.onPointerOut);
   }
 
   componentWillUnmout() {
-    this.canvas.removeEventListener('pointerdown');
-    this.canvas.removeEventListener('pointermove');
-    this.canvas.removeEventListener('pointerup');
-    this.canvas.removeEventListener('pointerout');
   }
 
-  onPointerDown(e) {
-    this.canBegin = true;
-    this.previousPoint = { x: e.offsetX, y: e.offsetY };
+  onUsernameChange(e) {
+    this.setState({ username: e.target.value });
   }
 
-  onPointerMove(e) {
-    if (this.canBegin) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(this.previousPoint.x, this.previousPoint.y);
-      this.ctx.lineTo(e.offsetX, e.offsetY);
-      this.ctx.stroke();
-      this.ctx.closePath();
-      this.previousPoint.x = e.offsetX;
-      this.previousPoint.y = e.offsetY;
+  onConnect() {
+    const { username } = this.state;
+    if (username) {
+      this.props.onConnect(username);
     }
   }
 
-  onPointerUp() {
-    this.canBegin = false;
-  }
-
-  onPointerOut() {
-    this.canBegin = false;
+  onDisconnect() {
+    this.props.onDisconnect();
   }
 
   render() {
-    const { width, height } = this.state;
+    const { receiver } = this.props;
+    const { width, height, username } = this.state;
 
     return (
       <div
-        className="canvas-wrapper"
-        ref={el => (this.wrapper = el)}
+        className="remote-board"
       >
-        <canvas
-          className="canvas"
-          ref={el => (this.canvas = el)}
-          width={width}
-          height={height}
-        />
+        <div className="title">
+          <h2>{receiver ? receiver : '对方'}的画板</h2>
+          {receiver ?
+            <AppButton
+              className="disconnect-button"
+              style={{ marginLeft: 16 }}
+              type="primary"
+              onClick={this.onDisconnect}
+            >
+              断开连接
+            </AppButton> :
+            <div>
+              <input
+                className="receiver-input"
+                type="text"
+                value={username}
+                placeholder="请输入对方用户名"
+                onChange={this.onUsernameChange}
+              />
+              <AppButton
+                style={{ marginLeft: 16 }}
+                type="primary"
+                onClick={this.onConnect}
+              >
+                连接
+              </AppButton>
+            </div>
+          }
+        </div>
+        <div className="board-main">
+          <div
+            className="drawing-canvas"
+            ref={el => (this.wrapper = el)}
+          >
+            <canvas
+              ref={el => (this.canvas = el)}
+              width={width}
+              height={height}
+            />
+          </div>
+        </div>
       </div>
     );
   }

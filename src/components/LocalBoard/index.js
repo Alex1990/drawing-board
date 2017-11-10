@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Toolbar from '../Toolbar';
 import DrawingCanvas from './DrawingCanvas';
@@ -7,8 +6,8 @@ import './index.css';
 
 const defaultTools = [
   {
-    type: 'pencil',
-    title: '铅笔',
+    type: 'brush',
+    title: '画笔',
     shortcut: 'b',
     size: 1,
   },
@@ -28,7 +27,7 @@ class LocalBoard extends Component {
     super(props);
     this.state = {
       tools: _.map(defaultTools, tool => ({ ...tool })),
-      activeToolType: 'pencil',
+      activeToolType: 'brush',
       coordinate: {
         x: 0,
         y: 0,
@@ -38,6 +37,7 @@ class LocalBoard extends Component {
     };
     this.onToolChange = this.onToolChange.bind(this);
     this.onToolSizeChange = this.onToolSizeChange.bind(this);
+    this.onPushCommand = this.onPushCommand.bind(this);
   }
 
   componentDidMount() {
@@ -70,7 +70,14 @@ class LocalBoard extends Component {
     });
   }
 
+  onPushCommand(command) {
+    this.props.socket.emit('command', {
+      command,
+    });
+  }
+
   render() {
+    const { username } = this.props;
     const { activeToolType, coordinate, tools } = this.state;
     const activeTool = getActiveTool(tools, activeToolType);
 
@@ -79,7 +86,7 @@ class LocalBoard extends Component {
         className="local-board"
       >
         <div className="title">
-          <h2>我的画板</h2>
+          <h2>{username ? username : '我'}的画板</h2>
           <p className="coordinate-info">
             x: {coordinate.x},
             y: {coordinate.y},
@@ -96,6 +103,7 @@ class LocalBoard extends Component {
           />
           <DrawingCanvas
             activeTool={activeTool}
+            onPushCommand={this.onPushCommand}
           />
         </div>
       </div>

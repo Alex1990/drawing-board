@@ -1,6 +1,5 @@
 .coordinate-info {
-  float: right;
-  margin-top: -36px;
+  margin: 0 0 0 32px;
   font-size: 14px;
   text-align: right;
   color: #777;
