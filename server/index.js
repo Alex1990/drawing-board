@@ -77,7 +77,7 @@ app.post('/api/account/login', (req, res) => {
     res.send();
   } else {
     res.status(400).send({
-      message: 'Username or password is wrong',
+      message: '用户名或密码错误',
     });
   }
 });

@@ -94,7 +94,6 @@ class LocalBoard extends Component {
     } = this.props;
     const {
       activeToolType,
-      coordinate,
       tools,
     } = this.state;
     const activeTool = getActiveTool(tools, activeToolType);

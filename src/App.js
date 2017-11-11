@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import 'normalize.css/normalize.css';
 import 'pepjs';
-import axios from 'axios';
+import req from './utils/req';
 import io from 'socket.io-client';
 import { getCookie, setCookie, removeCookie } from 'tiny-cookie';
 import LoginModal from './components/LoginModal';
@@ -81,28 +81,26 @@ class App extends Component {
   }
 
   onLogin({ username, password }) {
-    axios.post('/api/account/login', { username, password })
-      .then((response) => {
-        this.connect();
-        this.setState({
-          username,
-          loginModalVisible: false,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    req.post('/api/account/login', { username, password })
+      .then(({ response }) => {
+        if (response) {
+          this.connect();
+          this.setState({
+            username,
+            loginModalVisible: false,
+          });
+        }
       });
   }
 
   onLogout() {
-    axios.post('/api/account/logout', { username: this.state.username })
-      .then(() => {
-        this.setState({
-          username: '',
-        });
-      })
-      .catch((error) => {
-        console.log(error);
+    req.post('/api/account/logout', { username: this.state.username })
+      .then(({ response }) => {
+        if (response) {
+          this.setState({
+            username: '',
+          });
+        }
       });
   }
 
