@@ -2,7 +2,6 @@
   "name": "drawing-board",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://Alex1990.github.io/drawing-board",
   "dependencies": {
     "antd": "^2.13.8",
     "axios": "^0.17.0",
