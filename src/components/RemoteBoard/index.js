@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import keycode from 'keycode';
 import AppButton from '../AppButton';
 import './index.css';
 
@@ -59,6 +61,7 @@ class RemoteBoard extends Component {
       username: '',
     };
     this.onUsernameChange = this.onUsernameChange.bind(this);
+    this.onInputKeyDown = this.onInputKeyDown.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.execCommand = this.execCommand.bind(this);
@@ -75,18 +78,26 @@ class RemoteBoard extends Component {
     });
   }
 
-  componentWillUnmout() {
-  }
-
   onUsernameChange(e) {
     this.setState({ username: e.target.value });
   }
 
+  onInputKeyDown(e) {
+    if (keycode('enter') === e.keyCode) {
+      this.onConnect();
+    }
+  }
+
   onConnect() {
     const { username } = this.state;
-    if (username) {
-      this.props.onConnect(username);
+
+    if (!_.trim(username)) {
+      alert('请输入对方用户名');
+      return;
     }
+
+    this.setState({ username: '' });
+    this.props.onConnect(username);
   }
 
   onDisconnect() {
@@ -123,6 +134,7 @@ class RemoteBoard extends Component {
                 type="text"
                 value={username}
                 placeholder="请输入对方用户名"
+                onKeyDown={this.onInputKeyDown}
                 onChange={this.onUsernameChange}
               />
               <AppButton

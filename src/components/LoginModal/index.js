@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import keycode from 'keycode';
 import AppModal from '../AppModal';
 import './index.css';
 
@@ -21,7 +23,14 @@ class LoginModal extends Component {
     };
     this.onUsernameChange = this.onUsernameChange.bind(this);
     this.onPasswordChange = this.onPasswordChange.bind(this);
+    this.onInputKeyDown = this.onInputKeyDown.bind(this);
     this.onOk = this.onOk.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.visible === false && nextProps.visible === true) {
+      this.setState({ username: '', password: '' });
+    }
   }
 
   onUsernameChange(e) {
@@ -32,9 +41,29 @@ class LoginModal extends Component {
     this.setState({ password: e.target.value });
   }
 
+  onInputKeyDown(e) {
+    if (keycode('enter') === e.keyCode) {
+      this.onOk();
+    }
+  }
+
   onOk() {
     const { username, password } = this.state;
-    this.props.onLogin({ username, password });
+
+    if (!_.trim(username)) {
+      alert('请输入用户名');
+      return;
+    }
+
+    if (!password) {
+      alert('请输入密码');
+      return;
+    }
+
+    this.props.onLogin({
+      username: _.trim(username),
+      password,
+    });
   }
 
   render() {
@@ -66,6 +95,7 @@ class LoginModal extends Component {
                 className="app-form-item-control"
                 value={username}
                 placeholder="请输入用户名"
+                onKeyDown={this.onInputKeyDown}
                 onChange={this.onUsernameChange}
               />
             </div>
@@ -78,6 +108,7 @@ class LoginModal extends Component {
                 className="app-form-item-control"
                 value={password}
                 placeholder="请输入密码"
+                onKeyDown={this.onInputKeyDown}
                 onChange={this.onPasswordChange}
               />
             </div>

@@ -12,23 +12,24 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props);
-    const isLogin = Boolean(getCookie('isLogin'));
+    const username = getCookie('username');
     const receiver = getCookie('receiver');
     this.state = {
-      isLogin,
-      username: getCookie('username'),
-      loginModalVisible: !isLogin,
+      username,
       receiver,
+      loginModalVisible: false,
     };
+    this.onShowLoginModal = this.onShowLoginModal.bind(this);
+    this.onHideLoginModal = this.onHideLoginModal.bind(this);
     this.onLogin = this.onLogin.bind(this);
-    this.onCancelLogin = this.onCancelLogin.bind(this);
+    this.onLogout = this.onLogout.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.onPushCommand = this.onPushCommand.bind(this);
   }
 
   componentDidMount() {
-    if (this.state.isLogin) {
+    if (this.state.username) {
       this.connect();
     }
   }
@@ -67,14 +68,24 @@ class App extends Component {
     });
   }
 
+  onShowLoginModal() {
+    this.setState({
+      loginModalVisible: true,
+    });
+  }
+
+  onHideLoginModal() {
+    this.setState({
+      loginModalVisible: false,
+    });
+  }
+
   onLogin({ username, password }) {
     axios.post('/api/account/login', { username, password })
       .then((response) => {
-        setCookie('username', username);
         this.connect();
         this.setState({
           username,
-          isLogin: true,
           loginModalVisible: false,
         });
       })
@@ -83,13 +94,23 @@ class App extends Component {
       });
   }
 
-  onCancelLogin() {
-    this.setState({
-      loginModalVisible: false,
-    });
+  onLogout() {
+    axios.post('/api/account/logout', { username: this.state.username })
+      .then(() => {
+        this.setState({
+          username: '',
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   onConnect(receiver) {
+    if (!this.state.username) {
+      alert('请先登录');
+      return;
+    }
     this.socket.emit('create_relation', { username: receiver });
   }
 
@@ -128,13 +149,15 @@ class App extends Component {
           <div className="local">
             <LocalBoard
               username={username}
+              onShowLoginModal={this.onShowLoginModal}
+              onLogout={this.onLogout}
               onPushCommand={this.onPushCommand}
             />
           </div>
           <LoginModal
             visible={loginModalVisible}
             onLogin={this.onLogin}
-            onCancel={this.onCancelLogin}
+            onCancel={this.onHideLoginModal}
           />
         </div>
       </div>

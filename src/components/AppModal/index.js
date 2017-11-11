@@ -35,14 +35,11 @@ class AppModal extends Component {
     super(props);
     this.state = {
     };
-    const overlay = document.createElement('div');
-    overlay.className = 'app-overlay';
-    this.overlay = overlay;
   }
 
   componentDidMount() {
     if (this.props.visible) {
-      document.body.appendChild(this.overlay);
+      this.renderOverlay();
       this.renderModal(this.props);
     }
   }
@@ -50,13 +47,23 @@ class AppModal extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.visible === true && nextProps.visible === false) {
       this.removeOverlay();
-    } else {
+    } else if (nextProps.visible) {
+      this.renderOverlay();
       this.renderModal(nextProps);
     }
   }
 
   componentWillUnmount() {
     this.removeOverlay();
+  }
+
+  renderOverlay() {
+    if (!this.overlay) {
+      const overlay = document.createElement('div');
+      overlay.className = 'app-overlay';
+      this.overlay = overlay;
+      document.body.appendChild(this.overlay);
+    }
   }
 
   renderModal(props) {
@@ -105,6 +112,7 @@ class AppModal extends Component {
 
   removeOverlay() {
     document.body.removeChild(this.overlay);
+    this.overlay = null;
   }
 
   render() {

@@ -56,6 +56,7 @@ function deleteRelationBySocket(socket) {
 
 app.use(session({
   secret: 'oh haha',
+  name: 'sid',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -70,17 +71,28 @@ app.post('/api/account/login', (req, res) => {
     return user.username === username;
   });
   if (user && user.password === password) {
-    req.session.isLoggedIn = true;
     res.cookie('username', user.username, {
-      maxAge: SESSION_MAX_AGE,
-    });
-    res.cookie('isLogin', true, {
       maxAge: SESSION_MAX_AGE,
     });
     res.send();
   } else {
     res.status(400).send({
       message: 'Username or password is wrong',
+    });
+  }
+});
+
+app.post('/api/account/logout', (req, res) => {
+  const { username } = req.body;
+  if (req.session) {
+    req.session.destroy((err) => {
+      res.cookie('username', '', {
+        maxAge: -1,
+      });
+      res.cookie('sid', '', {
+        maxAge: -1,
+      });
+      res.end();
     });
   }
 });

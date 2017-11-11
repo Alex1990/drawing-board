@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import AppButton from '../AppButton';
 import Toolbar from '../Toolbar';
 import DrawingCanvas from './DrawingCanvas';
 import './index.css';
@@ -26,11 +27,15 @@ const getActiveTool = (tools, type) => {
 class LocalBoard extends Component {
   static propTypes = {
     username: PropTypes.string,
+    onShowLoginModal: PropTypes.func,
+    onLogout: PropTypes.func,
     onPushCommand: PropTypes.func,
   };
 
   static defaultProps = {
     username: '',
+    onShowLoginModal: _.noop,
+    onLogout: _.noop,
     onPushCommand: _.noop,
   };
 
@@ -81,8 +86,17 @@ class LocalBoard extends Component {
   }
 
   render() {
-    const { username, onPushCommand } = this.props;
-    const { activeToolType, coordinate, tools } = this.state;
+    const {
+      username,
+      onShowLoginModal,
+      onLogout,
+      onPushCommand,
+    } = this.props;
+    const {
+      activeToolType,
+      coordinate,
+      tools,
+    } = this.state;
     const activeTool = getActiveTool(tools, activeToolType);
 
     return (
@@ -91,12 +105,22 @@ class LocalBoard extends Component {
       >
         <div className="title">
           <h2>{username ? username : '我'}的画板</h2>
-          <p className="coordinate-info">
-            x: {coordinate.x},
-            y: {coordinate.y},
-            width: {coordinate.width},
-            height: { coordinate.height}
-          </p>
+          <div style={{ marginLeft: 32 }}>
+            {username ?
+              <AppButton
+                type="primary"
+                onClick={onLogout}
+              >
+                退出
+              </AppButton> :
+              <AppButton
+                type="primary"
+                onClick={onShowLoginModal}
+              >
+                登录
+              </AppButton>
+            }
+          </div>
         </div>
         <div className="board-main">
           <Toolbar
