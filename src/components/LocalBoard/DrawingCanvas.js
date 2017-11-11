@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import './DrawingCanvas.css';
 
 function drawBrushLine(ctx, {
   from,
   to,
   size,
-  color,
 }) {
   ctx.beginPath();
   ctx.lineCap = 'round';
@@ -30,8 +30,15 @@ function drawEraserLine(ctx, {
   ctx.moveTo(from.x, from.y);
   ctx.lineTo(to.x, to.y);
   ctx.stroke();
-  ctx.restore();
   ctx.closePath();
+  ctx.restore();
+}
+
+function execCommand(ctx, command) {
+  switch (command.type) {
+    case 'brush': drawBrushLine(ctx, command); break;
+    case 'eraser': drawEraserLine(ctx, command); break;
+  }
 }
 
 class DrawingCanvas extends Component {
@@ -41,6 +48,11 @@ class DrawingCanvas extends Component {
       title: PropTypes.string.isRequired,
       shortcut: PropTypes.string,
     }).isRequired,
+    onPushCommand: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onPushCommand: _.noop,
   };
 
   constructor(props) {
@@ -81,13 +93,15 @@ class DrawingCanvas extends Component {
   }
 
   setDimension() {
-    const wrapper = this.wrapper;
-    const { width, top } = wrapper.getBoundingClientRect();
+    const { width, top } = this.wrapper.getBoundingClientRect();
     const winHeight = window.innerHeight;
     const height = winHeight - top - 16;
+    const canvasBounding = this.canvas.getBoundingClientRect();
     this.setState({
       width: Math.floor(width),
       height: Math.floor(height),
+      canvasPageX: Math.floor(canvasBounding.left),
+      canvasPageY: Math.floor(canvasBounding.top),
     });
   }
 
@@ -154,56 +168,53 @@ class DrawingCanvas extends Component {
     this.canvas.style.cursor = `url(${cursorUrl}) ${midPoint} ${midPoint}, auto`;
   }
 
+  execCommand(command) {
+    const ctx = this.canvas.getContext('2d');
+    execCommand(ctx, command);
+    this.props.onPushCommand(command);
+  }
+
   onResize() {
     this.setDimension();
   }
 
   onPointerDown(e) {
     const { activeTool } = this.props;
+    const { canvasPageX, canvasPageY } = this.state;
 
     this.canBegin = true;
-    this.previousPoint = { x: e.offsetX, y: e.offsetY };
+    this.previousPoint = {
+      x: e.pageX - canvasPageX,
+      y: e.pageY - canvasPageY,
+    };
 
-    const ctx = this.canvas.getContext('2d');
-    const from = this.previousPoint;
-    const to = this.previousPoint;
-    const size = activeTool.size;
+    const command = {
+      type: activeTool.type,
+      size: activeTool.size,
+      from: this.previousPoint,
+      to: this.previousPoint,
+    };
 
-    if (activeTool.type === 'brush') {
-      drawBrushLine(ctx, { from, to, size });
-      this.props.onPushCommand({
-        type: activeTool.type,
-        from,
-        to,
-        size,
-      });
-    } else if (activeTool.type === 'eraser') {
-      drawEraserLine(ctx, { from, to, size });
-      this.props.onPushCommand({
-        type: activeTool.type,
-        from,
-        to,
-        size,
-      });
-    }
+    this.execCommand(command);
   }
 
   onPointerMove(e) {
     const { activeTool } = this.props;
 
     if (this.canBegin) {
-      const ctx = this.canvas.getContext('2d');
-      const from = this.previousPoint;
-      const to = { x: e.offsetX, y: e.offsetY };
-      const size = activeTool.size;
+      const { canvasPageX, canvasPageY } = this.state;
+      const command = {
+        type: activeTool.type,
+        size: activeTool.size,
+        from: this.previousPoint,
+        to: {
+          x: e.pageX - canvasPageX,
+          y: e.pageY - canvasPageY,
+        },
+      };
 
-      if (activeTool.type === 'brush') {
-        drawBrushLine(ctx, { from, to, size });
-      } else if (activeTool.type === 'eraser') {
-        drawEraserLine(ctx, { from, to, size });
-      }
-
-      this.previousPoint = to;
+      this.execCommand(command);
+      this.previousPoint = command.to;
     }
   }
 

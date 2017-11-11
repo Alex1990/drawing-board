@@ -3,6 +3,45 @@ import PropTypes from 'prop-types';
 import AppButton from '../AppButton';
 import './index.css';
 
+function drawBrushLine(ctx, {
+  from,
+  to,
+  size,
+}) {
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.lineWidth = size;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function drawEraserLine(ctx, {
+  from,
+  to,
+  size,
+}) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.lineWidth = size;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
+  ctx.stroke();
+  ctx.closePath();
+  ctx.restore();
+}
+
+function execCommand(ctx, command) {
+  switch (command.type) {
+    case 'brush': drawBrushLine(ctx, command); break;
+    case 'eraser': drawEraserLine(ctx, command); break;
+  }
+}
+
+
 class RemoteBoard extends Component {
   static propTypes = {
     receiver: PropTypes.string,
@@ -22,6 +61,7 @@ class RemoteBoard extends Component {
     this.onUsernameChange = this.onUsernameChange.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
+    this.execCommand = this.execCommand.bind(this);
   }
 
   componentDidMount() {
@@ -51,6 +91,11 @@ class RemoteBoard extends Component {
 
   onDisconnect() {
     this.props.onDisconnect();
+  }
+
+  execCommand(command) {
+    const ctx = this.canvas.getContext('2d');
+    execCommand(ctx, command);
   }
 
   render() {

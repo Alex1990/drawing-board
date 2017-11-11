@@ -146,7 +146,7 @@ io.on('connection', (socket) => {
     const receiverRelation = getRelationByUsername(relation.to);
 
     if (receiverRelation) {
-      receiverRelation.socket.emit('command', data.command);
+      receiverRelation.socket.emit('command', data);
     }
   });
 });

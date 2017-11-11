@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import 'normalize.css/normalize.css';
+import 'pepjs';
 import axios from 'axios';
 import io from 'socket.io-client';
 import { getCookie, setCookie, removeCookie } from 'tiny-cookie';
@@ -23,6 +24,7 @@ class App extends Component {
     this.onCancelLogin = this.onCancelLogin.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
+    this.onPushCommand = this.onPushCommand.bind(this);
   }
 
   componentDidMount() {
@@ -53,6 +55,10 @@ class App extends Component {
       socket.on('deleted_relation', (data) => {
         this.setState({ receiver: undefined });
         removeCookie('receiver');
+      });
+
+      socket.on('command', (command) => {
+        this.remoteBoard.execCommand(command);
       });
 
       if (this.state.receiver) {
@@ -93,6 +99,12 @@ class App extends Component {
     removeCookie('receiver');
   }
 
+  onPushCommand(command) {
+    if (this.socket && this.state.receiver) {
+      this.socket.emit('command', command);
+    }
+  }
+
   render() {
     const {
       username,
@@ -107,13 +119,17 @@ class App extends Component {
         <div className="main">
           <div className="remote">
             <RemoteBoard
+              ref={el => (this.remoteBoard = el)}
               receiver={receiver}
               onConnect={this.onConnect}
               onDisconnect={this.onDisconnect}
             />
           </div>
           <div className="local">
-            <LocalBoard username={username} />
+            <LocalBoard
+              username={username}
+              onPushCommand={this.onPushCommand}
+            />
           </div>
           <LoginModal
             visible={loginModalVisible}

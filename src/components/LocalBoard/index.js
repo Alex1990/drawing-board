@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Toolbar from '../Toolbar';
 import DrawingCanvas from './DrawingCanvas';
@@ -23,6 +24,16 @@ const getActiveTool = (tools, type) => {
 };
 
 class LocalBoard extends Component {
+  static propTypes = {
+    username: PropTypes.string,
+    onPushCommand: PropTypes.func,
+  };
+
+  static defaultProps = {
+    username: '',
+    onPushCommand: _.noop,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -37,14 +48,13 @@ class LocalBoard extends Component {
     };
     this.onToolChange = this.onToolChange.bind(this);
     this.onToolSizeChange = this.onToolSizeChange.bind(this);
-    this.onPushCommand = this.onPushCommand.bind(this);
   }
 
   componentDidMount() {
     this.setState({
       coordinate: {
-        x: Math.floor(window.screenLeft + window.innerWidth / 2),
-        y: Math.floor(window.screenTop + window.outerHeight - window.innerHeight),
+        x: Math.floor(window.screenX + window.innerWidth / 2),
+        y: Math.floor(window.screenY + window.outerHeight - window.innerHeight),
         width: Math.floor(window.innerWidth / 2),
         height: Math.floor(window.innerHeight),
       },
@@ -70,14 +80,8 @@ class LocalBoard extends Component {
     });
   }
 
-  onPushCommand(command) {
-    this.props.socket.emit('command', {
-      command,
-    });
-  }
-
   render() {
-    const { username } = this.props;
+    const { username, onPushCommand } = this.props;
     const { activeToolType, coordinate, tools } = this.state;
     const activeTool = getActiveTool(tools, activeToolType);
 
@@ -103,7 +107,7 @@ class LocalBoard extends Component {
           />
           <DrawingCanvas
             activeTool={activeTool}
-            onPushCommand={this.onPushCommand}
+            onPushCommand={onPushCommand}
           />
         </div>
       </div>
