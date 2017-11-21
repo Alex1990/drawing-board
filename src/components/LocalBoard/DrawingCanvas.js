@@ -1,45 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import execCommand from './execCommand';
 import './DrawingCanvas.css';
-
-function drawBrushLine(ctx, {
-  from,
-  to,
-  size,
-}) {
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.lineWidth = size;
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-  ctx.closePath();
-}
-
-function drawEraserLine(ctx, {
-  from,
-  to,
-  size,
-}) {
-  ctx.save();
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.lineWidth = size;
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-  ctx.closePath();
-  ctx.restore();
-}
-
-function execCommand(ctx, command) {
-  switch (command.type) {
-    case 'brush': drawBrushLine(ctx, command); break;
-    case 'eraser': drawEraserLine(ctx, command); break;
-  }
-}
 
 class DrawingCanvas extends Component {
   static propTypes = {
@@ -183,16 +146,19 @@ class DrawingCanvas extends Component {
     const { canvasPageX, canvasPageY } = this.state;
 
     this.canBegin = true;
-    this.previousPoint = {
+    this.previousPoints = [];
+    const point = {
       x: e.pageX - canvasPageX,
       y: e.pageY - canvasPageY,
     };
+    this.previousPoints.push(point);
 
     const command = {
       type: activeTool.type,
       size: activeTool.size,
-      from: this.previousPoint,
-      to: this.previousPoint,
+      previousPoint: point,
+      from: point,
+      to: point,
     };
 
     this.execCommand(command);
@@ -203,23 +169,29 @@ class DrawingCanvas extends Component {
 
     if (this.canBegin) {
       const { canvasPageX, canvasPageY } = this.state;
+      const previousPoint = this.previousPoints[0];
+      const from = this.previousPoints[1] || previousPoint;
+      const to = {
+        x: e.pageX - canvasPageX,
+        y: e.pageY - canvasPageY,
+      };
       const command = {
         type: activeTool.type,
         size: activeTool.size,
-        from: this.previousPoint,
-        to: {
-          x: e.pageX - canvasPageX,
-          y: e.pageY - canvasPageY,
-        },
+        previousPoint,
+        from,
+        to,
       };
 
       this.execCommand(command);
-      this.previousPoint = command.to;
+      this.previousPoints[0] = from;;
+      this.previousPoints[1] = to;;
     }
   }
 
   onPointerUp() {
     this.canBegin = false;
+    this.preivousPoints = null;
   }
 
   onPointerOut() {

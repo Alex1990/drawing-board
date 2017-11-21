@@ -2,47 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import keycode from 'keycode';
+import execCommand from '../LocalBoard/execCommand';
 import AppButton from '../AppButton';
 import './index.css';
-
-function drawBrushLine(ctx, {
-  from,
-  to,
-  size,
-}) {
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.lineWidth = size;
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-  ctx.closePath();
-}
-
-function drawEraserLine(ctx, {
-  from,
-  to,
-  size,
-}) {
-  ctx.save();
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.lineWidth = size;
-  ctx.moveTo(from.x, from.y);
-  ctx.lineTo(to.x, to.y);
-  ctx.stroke();
-  ctx.closePath();
-  ctx.restore();
-}
-
-function execCommand(ctx, command) {
-  switch (command.type) {
-    case 'brush': drawBrushLine(ctx, command); break;
-    case 'eraser': drawEraserLine(ctx, command); break;
-  }
-}
-
 
 class RemoteBoard extends Component {
   static propTypes = {
