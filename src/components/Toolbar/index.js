@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import mousetrap from 'mousetrap';
+import ColorPicker from '../ColorPicker';
 import ToolButton from './ToolButton';
 import './index.css';
 
@@ -16,6 +17,7 @@ class Toolbar extends Component {
       shortcut: PropTypes.string,
       size: PropTypes.number,
     }).isRequired,
+    color: PropTypes.string.isRequired,
     onToolChange: PropTypes.func,
     onToolSizeChange: PropTypes.func,
   };
@@ -104,7 +106,7 @@ class Toolbar extends Component {
   }
 
   render() {
-    const { tools, activeTool, onToolChange  } = this.props;
+    const { tools, activeTool, color, onToolChange, onColorChange  } = this.props;
 
     const toolBtns = _.map(tools, ({ type, title, shortcut }) =>
       <ToolButton
@@ -119,6 +121,11 @@ class Toolbar extends Component {
     return (
       <div className="toolbar">
         {toolBtns}
+        <ColorPicker
+          style={{ marginTop: 8 }}
+          value={color}
+          onChange={onColorChange}
+        />
       </div>
     );
   }

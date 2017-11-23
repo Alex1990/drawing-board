@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import 'normalize.css/normalize.css';
+import 'antd/dist/antd.css';
 import 'pepjs';
 import req from './utils/req';
 import io from 'socket.io-client';

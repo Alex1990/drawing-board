@@ -44,6 +44,7 @@ class LocalBoard extends Component {
     this.state = {
       tools: _.map(defaultTools, tool => ({ ...tool })),
       activeToolType: 'brush',
+      color: 'rgba(0,0,0,1)',
       coordinate: {
         x: 0,
         y: 0,
@@ -53,6 +54,7 @@ class LocalBoard extends Component {
     };
     this.onToolChange = this.onToolChange.bind(this);
     this.onToolSizeChange = this.onToolSizeChange.bind(this);
+    this.onColorChange = this.onColorChange.bind(this);
   }
 
   componentDidMount() {
@@ -85,6 +87,10 @@ class LocalBoard extends Component {
     });
   }
 
+  onColorChange(color) {
+    this.setState({ color });
+  }
+
   render() {
     const {
       username,
@@ -93,8 +99,9 @@ class LocalBoard extends Component {
       onPushCommand,
     } = this.props;
     const {
-      activeToolType,
       tools,
+      activeToolType,
+      color,
     } = this.state;
     const activeTool = getActiveTool(tools, activeToolType);
 
@@ -125,11 +132,14 @@ class LocalBoard extends Component {
           <Toolbar
             tools={tools}
             activeTool={activeTool}
+            color={color}
             onToolChange={this.onToolChange}
             onToolSizeChange={this.onToolSizeChange}
+            onColorChange={this.onColorChange}
           />
           <DrawingCanvas
             activeTool={activeTool}
+            color={color}
             onPushCommand={onPushCommand}
           />
         </div>

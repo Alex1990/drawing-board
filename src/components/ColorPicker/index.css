@@ -1,0 +1,20 @@
+.color-picker-container {
+  display: inline-block;
+}
+
+.color-picker-overlay .ant-popover-inner {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.color-picker-overlay .ant-popover-inner-content {
+  padding: 0;
+}
+
+.color-picker {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #fff;
+  box-shadow: inset 0 0 0 1px #444;
+}

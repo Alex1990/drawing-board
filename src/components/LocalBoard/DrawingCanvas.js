@@ -11,6 +11,7 @@ class DrawingCanvas extends Component {
       title: PropTypes.string.isRequired,
       shortcut: PropTypes.string,
     }).isRequired,
+    color: PropTypes.string.isRequired,
     onPushCommand: PropTypes.func,
   };
 
@@ -142,7 +143,7 @@ class DrawingCanvas extends Component {
   }
 
   onPointerDown(e) {
-    const { activeTool } = this.props;
+    const { activeTool, color } = this.props;
     const { canvasPageX, canvasPageY } = this.state;
 
     this.canBegin = true;
@@ -159,15 +160,15 @@ class DrawingCanvas extends Component {
       previousPoint: point,
       from: point,
       to: point,
+      color,
     };
 
     this.execCommand(command);
   }
 
   onPointerMove(e) {
-    const { activeTool } = this.props;
-
     if (this.canBegin) {
+      const { activeTool, color } = this.props;
       const { canvasPageX, canvasPageY } = this.state;
       const previousPoint = this.previousPoints[0];
       const from = this.previousPoints[1] || previousPoint;
@@ -181,6 +182,7 @@ class DrawingCanvas extends Component {
         previousPoint,
         from,
         to,
+        color,
       };
 
       this.execCommand(command);

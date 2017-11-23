@@ -3,13 +3,15 @@ function drawBrushLine(ctx, {
   from,
   to,
   size,
+  color,
 }) {
   ctx.beginPath();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.lineWidth = size;
-  ctx.moveTo(previousPoint.x, previousPoint.y);
-  ctx.quadraticCurveTo(from.x, from.y, to.x, to.y);
+  ctx.strokeStyle = color;
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
   ctx.stroke();
   ctx.closePath();
 }
@@ -26,8 +28,8 @@ function drawEraserLine(ctx, {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.lineWidth = size;
-  ctx.moveTo(previousPoint.x, previousPoint.y);
-  ctx.quadraticCurveTo(from.x, from.y, to.x, to.y);
+  ctx.moveTo(from.x, from.y);
+  ctx.lineTo(to.x, to.y);
   ctx.stroke();
   ctx.closePath();
   ctx.restore();
