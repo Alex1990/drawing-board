@@ -35,10 +35,18 @@ function drawEraserLine(ctx, {
   ctx.restore();
 }
 
+function clear(ctx) {
+  const canvas = ctx.canvas;
+  if (canvas) {
+    canvas.width = canvas.width;
+  }
+}
+
 function execCommand(ctx, command) {
   switch (command.type) {
     case 'brush': drawBrushLine(ctx, command); break;
     case 'eraser': drawEraserLine(ctx, command); break;
+    case 'clear': clear(ctx, command); break;
   }
 }
 

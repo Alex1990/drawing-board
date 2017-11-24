@@ -55,6 +55,7 @@ class LocalBoard extends Component {
     this.onToolChange = this.onToolChange.bind(this);
     this.onToolSizeChange = this.onToolSizeChange.bind(this);
     this.onColorChange = this.onColorChange.bind(this);
+    this.onClearBoard = this.onClearBoard.bind(this);
   }
 
   componentDidMount() {
@@ -89,6 +90,11 @@ class LocalBoard extends Component {
 
   onColorChange(color) {
     this.setState({ color });
+  }
+
+  onClearBoard() {
+    console.log('onClearBoard');
+    this.drawingCanvas.clearBoard();
   }
 
   render() {
@@ -136,8 +142,10 @@ class LocalBoard extends Component {
             onToolChange={this.onToolChange}
             onToolSizeChange={this.onToolSizeChange}
             onColorChange={this.onColorChange}
+            onClearBoard={this.onClearBoard}
           />
           <DrawingCanvas
+            ref={el => (this.drawingCanvas = el)}
             activeTool={activeTool}
             color={color}
             onPushCommand={onPushCommand}

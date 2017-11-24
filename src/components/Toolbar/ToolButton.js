@@ -10,11 +10,13 @@ class ToolButton extends Component {
     icon: PropTypes.string.isRequired,
     activated: PropTypes.bool,
     onActive: PropTypes.func,
+    onCick: PropTypes.func,
   };
 
   static defaultProps = {
     activated: false,
     onActive: _.noop,
+    onClick: _.noop,
   }
 
   constructor(props) {
@@ -27,6 +29,7 @@ class ToolButton extends Component {
     if (!this.props.activated) {
       this.props.onActive(this.props.icon);
     }
+    this.props.onClick();
   }
 
   render() {

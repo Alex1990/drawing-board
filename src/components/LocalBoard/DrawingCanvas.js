@@ -25,7 +25,8 @@ class DrawingCanvas extends Component {
       width: undefined,
       height: undefined,
     };
-    this.onResize = this.onResize.bind(this);
+    this.saveToCache = _.throttle(this.saveToCache, 10000);
+    this.immedateSaveToCache = this.immedateSaveToCache.bind(this);
     this.onPointerDown = this.onPointerDown.bind(this);
     this.onPointerMove = this.onPointerMove.bind(this);
     this.onPointerUp = this.onPointerUp.bind(this);
@@ -33,13 +34,14 @@ class DrawingCanvas extends Component {
   }
 
   componentDidMount() {
-    window.addEventListener('resize', this.onResize);
     this.setDimension();
+    window.addEventListener('beforeunload', this.immedateSaveToCache);
     this.canvas.addEventListener('pointerdown', this.onPointerDown);
     this.canvas.addEventListener('pointermove', this.onPointerMove);
     this.canvas.addEventListener('pointerup', this.onPointerUp);
     this.canvas.addEventListener('pointerout', this.onPointerOut);
     this.setCursor(this.props.activeTool);
+    this.restoreFromCache();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -49,7 +51,6 @@ class DrawingCanvas extends Component {
   }
 
   componentWillUnmout() {
-    window.removeEventListener('resize', this.onResize);
     this.canvas.removeEventListener('pointerdown', this.onPointerDown);
     this.canvas.removeEventListener('pointermove', this.onPointerMove);
     this.canvas.removeEventListener('pointerup', this.onPointerUp);
@@ -132,14 +133,41 @@ class DrawingCanvas extends Component {
     this.canvas.style.cursor = `url(${cursorUrl}) ${midPoint} ${midPoint}, auto`;
   }
 
+  restoreFromCache() {
+    const localPaint = localStorage.local;
+    const image = new Image();
+    image.src = localPaint;
+    image.onload = () => {
+      const ctx = this.canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0, image.width, image.height);
+    };
+  }
+
+  saveToCache() {
+    const imgStr = this.canvas.toDataURL('image/png', 1);
+    localStorage.local = imgStr;
+  }
+
+  immedateSaveToCache() {
+    this.saveToCache.flush();
+    window.removeEventListener('beforeunload', this.immedateSaveToCache);
+  }
+
+  clearBoard() {
+    this.saveToCache.flush();
+    localStorage.removeItem('local');
+    this.execCommand({
+      type: 'clear',
+    });
+  }
+
   execCommand(command) {
     const ctx = this.canvas.getContext('2d');
     execCommand(ctx, command);
     this.props.onPushCommand(command);
-  }
-
-  onResize() {
-    this.setDimension();
+    if (command.type !== 'clear') {
+      this.saveToCache();
+    }
   }
 
   onPointerDown(e) {

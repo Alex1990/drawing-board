@@ -20,11 +20,15 @@ class Toolbar extends Component {
     color: PropTypes.string.isRequired,
     onToolChange: PropTypes.func,
     onToolSizeChange: PropTypes.func,
+    onColorChange: PropTypes.func,
+    onClearBoard: PropTypes.func,
   };
 
   static defaultProps = {
     onToolChange: _.noop,
     onToolSizeChange: _.noop,
+    onColorChange: _.noop,
+    onClearBoard: _.noop,
   };
 
   constructor(props) {
@@ -106,7 +110,14 @@ class Toolbar extends Component {
   }
 
   render() {
-    const { tools, activeTool, color, onToolChange, onColorChange  } = this.props;
+    const {
+      tools,
+      activeTool,
+      color,
+      onToolChange,
+      onColorChange,
+      onClearBoard,
+    } = this.props;
 
     const toolBtns = _.map(tools, ({ type, title, shortcut }) =>
       <ToolButton
@@ -125,6 +136,12 @@ class Toolbar extends Component {
           style={{ marginTop: 8 }}
           value={color}
           onChange={onColorChange}
+        />
+        <ToolButton
+          style={{ marginTop: 8 }}
+          icon="clear"
+          title="清除画板"
+          onClick={onClearBoard}
         />
       </div>
     );
